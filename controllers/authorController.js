@@ -10,7 +10,9 @@ exports.author_list = function(req, res) {
         .exec(function (err, list_authors) {
             if (err) { return next(err); }
             // Successful, so render
-            res.render('author_list', { title: 'Author List', author_list: list_authors });
+            res.render('author_list', { 
+                title: 'Author List', 
+                author_list: list_authors });
         });
 };
 
@@ -29,19 +31,60 @@ exports.author_detail = function(req, res, next) {
     }, function(err, results) {
         if (err) { return next(err); }
         // Success, so rende
-        res.render('author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books });
+        res.render('author_detail', { 
+            title: 'Author Detail', 
+            author: results.author, 
+            author_books: results.authors_books 
+        });
     });
     
 };
 
 // Display Author create from on GET
-exports.author_create_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author create GET');
+exports.author_create_get = function(req, res, next) {
+    res.render('author_form', { title: 'Create Author' });
 };
 
 // Handle Author create on POST
-exports.author_create_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author create POST');
+exports.author_create_post = function(req, res, next) {
+
+    req.checkBody('first_name', 'First name must be specified').notEmpty();
+    req.checkBody('family_name', 'Family name must be specified').notEmpty();
+    req.checkBody('family_name', 'Family name must be alphanumeric text').isAlpha();
+    req.checkBody('date_of_birth', 'Invalid date').optional({ checkFalsy: true }).isDate();
+    req.checkBody('date_of_death', 'Invalid date').optional({ checkFalsy: true }).isDate();
+
+    req.sanitize('first_name').escape();
+    req.sanitize('family_name').escape();
+    req.sanitize('first_name').escape();
+    req.sanitize('family_name').escape();
+    req.sanitize('date_of_birth').escape();
+    req.sanitize('date_of_death').toDate();
+
+    var errors = req.validationErrors();
+
+    var author = new Author(
+        {
+            first_name: req.body.first_name,
+            family_name: req.body.family_name,
+            date_of_birth: req.body.date_of_birth,
+            date_of_death: req.body.date_of_death
+        }
+    );
+
+    if (errors) {
+        res.render('author_form', { title: 'Create Author', author: author, errors: errors});
+        return;
+    }
+    else {
+        // Data from form is valid
+
+        author.save(function (err) {
+            if (err) { return next(err); }
+            // Successful, so redirect to new author record.
+            res.redirect(author.url);
+        });
+    }
 };
 
 // Display Author delete form on GET

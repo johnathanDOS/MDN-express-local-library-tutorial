@@ -51,7 +51,7 @@ exports.genre_create_post = function(req, res, next) {
 
     //Trim and escape the name field
     req.sanitize('name').escape();
-    req.sanitaize('name').trim();
+    req.sanitize('name').trim();
 
     //Run the validators
     var errors = req.validationErrors();
