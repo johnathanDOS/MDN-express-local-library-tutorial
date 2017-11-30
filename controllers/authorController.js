@@ -30,7 +30,7 @@ exports.author_detail = function(req, res, next) {
         },
     }, function(err, results) {
         if (err) { return next(err); }
-        // Success, so rende
+        // Success, so render
         res.render('author_detail', { 
             title: 'Author Detail', 
             author: results.author, 
