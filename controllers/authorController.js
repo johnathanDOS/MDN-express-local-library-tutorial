@@ -51,8 +51,8 @@ exports.author_create_post = function(req, res, next) {
     req.checkBody('first_name', 'First name must be specified').notEmpty();
     req.checkBody('family_name', 'Family name must be specified').notEmpty();
     req.checkBody('family_name', 'Family name must be alphanumeric text').isAlpha();
-    req.checkBody('date_of_birth', 'Invalid date').optional({ checkFalsy: true }).isDate();
-    req.checkBody('date_of_death', 'Invalid date').optional({ checkFalsy: true }).isDate();
+    // req.checkBody('date_of_birth', 'Invalid date').optional({ checkFalsy: true }).isDate();
+    // req.checkBody('date_of_death', 'Invalid date').optional({ checkFalsy: true }).isDate();
 
     req.sanitize('first_name').escape();
     req.sanitize('family_name').escape();
@@ -88,27 +88,30 @@ exports.author_create_post = function(req, res, next) {
 };
 
 // Display Author delete form on GET
-exports.author_delete_get = function(req, res, next) {
-
-    async.parallel({
-        author: function(callback) {
-            Author.findById(req.params.id).exec(callback);
-        },
-        authors_books: function(callback) {
-            Book.find({ 'author': req.params.id }).exec(callback);
-        },
-    }, function(err, results) {
-        if (err) { return next(err); }
-        // Successful, so render
-        res.render('author_delete', { 
-            title: 'Delete Author',
-            author: results.author,
-            author_books: results.author_books
+exports.author_delete_get = function(req, res, next) {       
+    
+        async.parallel({
+            author: function(callback) {     
+                Author.findById(req.params.id)
+                    .exec(callback);
+            },
+            authors_books: function(callback) {
+              Book.find({ 'author': req.params.id }, 'title summary')
+                .exec(callback);
+            },
+        }, function(err, results) {
+            if (err) { return next(err); }
+            //Successful, so render
+            res.render('author_delete', { 
+                title: 'Delete Author', 
+                author: results.author, 
+                author_books: results.authors_books 
+            });
         });
-    });
-};
+        
+    };
 
-// Handle Author delete on POST
+// Handle Author delete on POST 
 exports.author_delete_post = function(req, res, next) {
     
         req.checkBody('authorid', 'Author id must exist').notEmpty();  

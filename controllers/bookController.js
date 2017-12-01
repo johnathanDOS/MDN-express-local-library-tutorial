@@ -61,7 +61,10 @@ exports.book_detail = function(req, res, next) {
     }, function(err, results) {
         if (err) { return next(err); }
         // Succesful, so render
-        res.render('book_detail', { title: 'Title', book: results.book, book_instances: results.book_instance });
+        res.render('book_detail', { 
+            title: 'Title', 
+            book: results.book, 
+            book_instances: results.book_instance });
     });
 };
 
@@ -172,6 +175,7 @@ exports.book_delete_get = function(req, res, next) {
             .exec(callback);
         },
         book_instance: function(callback) {
+            
             BookInstance.find( { 'book': req.params.id }, 'imprint')
             .populate('book')
             .exec(callback);
@@ -183,8 +187,7 @@ exports.book_delete_get = function(req, res, next) {
         res.render('book_delete', {
             title: 'Delete Book',
             book: results.book,
-            book_instance: results.book_instance
-            //TODO: Figure out why some book delete forms are not rendering correctly.
+            book_instances: results.book_instance
         });
     });
 };
