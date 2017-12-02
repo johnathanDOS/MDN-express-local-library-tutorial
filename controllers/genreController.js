@@ -122,16 +122,90 @@ exports.genre_delete_get = function(req, res, next) {
 };
 
 // Handle Genre delete on POST
-exports.genre_delete_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre delete POST');
+exports.genre_delete_post = function(req, res, next) {
+
+    req.checkBody('genreid', 'Genre id must exist').notEmpty();
+
+    async.parallel({
+        genre: function(callback) {
+            Genre.findById(req.body.genreid).exec(callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+        // Success
+        Genre.findByIdAndRemove(req.body.genreid, function deletegenre(err) {
+            if (err) { return next(err); }
+            // Success - got to book list
+            res.redirect('/catalog/genres')
+        })
+    })
 };
 
 // Display Genre update form on GET
-exports.genre_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre update GET');
+exports.genre_update_get = function(req, res, next) {
+
+    req.sanitize('id').escape();
+    req.sanitize('id').trim();
+
+    async.parallel({
+        genre: function(callback) {
+            Genre.findById(req.params.id).exec(callback);
+        }
+    }, function (err, results) {
+        if (err) {return next(err);}
+
+        // success, so render
+        res.render('genre_form', {
+            title: 'Update Genre',
+            genre: results.genre
+        });
+    });
 };
 
 // Handle Genre update on POST
-exports.genre_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre update POST');
+exports.genre_update_post = function(req, res, next) {
+
+    req.sanitize('id').escape();
+    req.sanitize('id').trim();
+
+
+    req.checkBody('name', 'Genre name required').notEmpty();
+
+    req.sanitize('name').escape();
+    req.sanitize('name').trim();
+
+    var errors = req.validationErrors();
+
+    var genre = new Genre(
+        {
+            name: req.body.name,
+            _id: req.params.id
+        }
+    );
+
+    console.log('GENRE: ' + genre)
+
+    if (errors) {
+       async.parallel({
+           genre: function(callback) {
+               Genre.findById(req.params.id).exec(callback);
+           }
+       }, function (err, results) {
+           if (err) {return next(err); }
+           // Success, so render
+           res.render('genre_form', {
+               title: 'Update Genre',
+               genre: genre,
+               errors: errors
+           })
+       }) 
+    }
+    else {
+        // Data from form is valid.
+        Genre.findByIdAndUpdate(req.params.id, genre, {}, function(err, thegenre) {
+            if (err) {return next(err); }
+            // Successful - redirect to genre detail page.
+            res.redirect(thegenre.url);
+        });
+    }    
 };
