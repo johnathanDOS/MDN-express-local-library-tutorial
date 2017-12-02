@@ -145,8 +145,26 @@ exports.author_delete_post = function(req, res, next) {
     };
 
 // Display Author update form on GET
-exports.author_update_get = function(req, res) { 
-    res.send('NOT IMPLEMENTED: Author update GET');
+exports.author_update_get = function(req, res, next) {
+    
+    req.sanitize('id').escape();
+    req.sanitize('id').trim();
+
+    //Get Author for form
+    async.parallel({
+        author: function(callback) {
+            Author.findById(req.params.id).exec(callback);
+        }
+    }, function(err, results) {
+        if (err) { return next(err); }
+
+        //Success, so render author form
+        res.render('author_form', {
+            title: "Update Author",
+            author: results.author,
+        });
+    });
+
 };
 
 // Handle Author update on POST
