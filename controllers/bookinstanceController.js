@@ -22,7 +22,10 @@ exports.bookinstance_detail = function(req, res, next) {
         .exec(function (err, bookinstance) {
             if (err) { return next(err); }
             // Success, so render
-            res.render('bookinstance_detail', { title: 'Book', bookinstance: bookinstance });
+            res.render('bookinstance_detail', { 
+                title: 'Book', 
+                bookinstance: bookinstance 
+            });
         });
 };
 
@@ -86,8 +89,19 @@ exports.bookinstance_create_post = function(req, res, next) {
     };
 
 // Display BookInstance delete form on GET
-exports.bookinstance_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance delete GET');
+exports.bookinstance_delete_get = function(req, res, next) {
+
+    BookInstance.findById(req.params.id)
+        .populate('book')
+        .exec(function (err, bookinstance) {
+            if (err) { return next(err); }
+            // Success, so render
+            res.render('bookinstance_delete', {
+                title: 'Delete Book',
+                bookinstance: bookinstance
+            })
+        })
+
 };
 
 // Handle BookInstance delete on POST
