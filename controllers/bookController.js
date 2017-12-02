@@ -201,7 +201,7 @@ exports.book_delete_post = function(req, res, next) {
             Book.findById(req.body.bookid).exec(callback);
         }
     }, function(err, results) {
-        if (err) { return next(er); }
+        if (err) { return next(err); }
         //Success
         Book.findByIdAndRemove(req.body.bookid, function deleteBook(err) {
             if (err) { return next(err); }
