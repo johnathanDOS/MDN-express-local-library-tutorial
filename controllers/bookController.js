@@ -239,7 +239,12 @@ exports.book_update_get = function(req, res, next) {
                     }
                 }
             }
-            res.render('book_form', { title: 'Update Book', authors:results.authors, genres:results.genres, book: results.book });
+            res.render('book_form', { 
+                title: 'Update Book', 
+                authors:results.authors, 
+                genres:results.genres, 
+                book: results.book 
+            });
         });
         
     };
