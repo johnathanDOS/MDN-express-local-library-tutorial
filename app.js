@@ -10,12 +10,15 @@ var expressValidator = require('express-validator');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var catalog = require('./routes/catalog'); //Import routes for "catalog" area of site
+var compression = require('compression');
+var helmet = require('helmet');
 
 var app = express();
+app.use(helmet());
 
 // set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB = 'mongodb://johnathandos:local_library_pass@ds013232.mlab.com:13232/local_library'
+var mongoDB = process.env.MONGODB_URI || 'mongodb://johnathandos:local_library_pass@ds013232.mlab.com:13232/local_library'
 mongoose.connect(mongoDB, {
   useMongoClient: true
 });
@@ -35,6 +38,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
 
 app.use(cookieParser());
+
+app.use(compression());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
